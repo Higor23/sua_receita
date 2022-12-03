@@ -2,7 +2,7 @@ import React from "react";
 
 import { TouchableOpacity } from 'react-native';
 import { Card, CardImage, CardContent } from 'react-native-cards';
-import produto from '../../assets/imgs/receita.jpg';
+import { getImagem } from "../../api";
 
 import {
     NomeEmpresa,
@@ -29,7 +29,7 @@ export default class FeedCard extends React.Component {
                 }
             }>
                 <Card style={{ borderRadius: 10 }}>
-                    <CardImage source={produto} />
+                    <CardImage source={getImagem(feed.imagem)} />
                     <CardContent>
                         <CardContent style={{ backgroundColor: '#f0f0f0', marginTop: -40, borderRadius: 15 }}>
                             <NomeEmpresa>{feed.category.name}</NomeEmpresa>

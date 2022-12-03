@@ -3,16 +3,14 @@ import React from "react";
 import { View, FlatList, TouchableOpacity, Text } from 'react-native';
 import FeedCard from "../../components/FeedCard";
 
-import feedsEstaticos from '../../assets/dicionarios/feeds.json'
-
-const FEEDS_POR_PAGINA = 4;
+import { getFeeds } from "../../api";
 
 export default class Feeds extends React.Component {
 
     constructor(props) {
         super(props);
         this.state = {
-            proximaPagina: 0,
+            proximaPagina: 1,
             feeds: [],
             carregando: false,
             atualizando: false
@@ -27,28 +25,30 @@ export default class Feeds extends React.Component {
             carregando: true
         })
 
-        // carregar o total de feeds por pagina atual
-        const idInicial = proximaPagina * FEEDS_POR_PAGINA + 1;
-        const idFinal = idInicial + FEEDS_POR_PAGINA - 1;
-        const maisFeeds = feedsEstaticos.feeds.filter((feed) => feed._id >= idInicial && feed._id <= idFinal);
+        
+        getFeeds(proximaPagina).then((maisFeeds) => {
+            if (maisFeeds.length) {
+               console.log('Sim: '+ maisFeeds) 
+                console.log("adicionando " + maisFeeds.length + " feeds");
+    
+                // incrementar a pagina e guardar os feeds
+                this.setState({
+                    proximaPagina: proximaPagina + 1,
+                    feeds: [...feeds, ...maisFeeds],
+    
+                    carregando: false,
+                    atualizando: false
+                });
+            } else {
+                this.setState({
+                    carregando: false,
+                    atualizando: false
+                })
+            }
+        }).catch((error) => {
+            console.error("erro acessando feeds: " + error);
+        })
 
-        if (maisFeeds.length) {
-            console.log("adicionando " + maisFeeds.length + " feeds");
-
-            // incrementar a pagina e guardar os feeds
-            this.setState({
-                proximaPagina: proximaPagina + 1,
-                feeds: [...feeds, ...maisFeeds],
-
-                carregando: false,
-                atualizando: false
-            });
-        } else {
-            this.setState({
-                carregando: false,
-                atualizando: false
-            })
-        }
     }
 
     componentDidMount = () => {
@@ -67,7 +67,7 @@ export default class Feeds extends React.Component {
     }
 
     atualizar = () => {
-        this.setState({ atualizando: true, feeds:[], proximaPagina: 0 },
+        this.setState({ atualizando: true, feeds:[], proximaPagina: 1 },
             () => {
                 this.carregarFeeds();
             })

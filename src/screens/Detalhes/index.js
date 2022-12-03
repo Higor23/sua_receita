@@ -1,16 +1,13 @@
 import React from 'react';
 
-import { CardContent, Card } from 'react-native-cards';
-import { Image } from 'react-native';
-import produto from '../../assets/imgs/receita.jpg';
+import { CardContent, Card, CardImage } from 'react-native-cards';
 
 import {
     NomeProduto,
     DescricaoProduto
 } from '../../assets/styles';
 
-import feedsEstaticos from '../../assets/dicionarios/feeds.json';
-
+import { getFeed, getImagem } from "../../api";
 
 export default class Detalhes extends React.Component {
     constructor(props) {
@@ -24,15 +21,16 @@ export default class Detalhes extends React.Component {
 
     carregarFeed = () => {
         const { feedId } = this.state
-
-        const feeds = feedsEstaticos.feeds;
-        const feedsFiltrados = feeds.filter((feed) => feed._id === feedId)
-
-        if (feedsFiltrados.length) {
+           
+        getFeed(feedId).then((feedAtualizado) => {
             this.setState({
-                feed: feedsFiltrados[0]
+                feed: feedAtualizado
             });
-        }
+        }).catch((erro) => {
+            console.error("erro atualizando o feed: " + erro);
+        });
+        
+
     }
 
     componentDidMount = () => {
@@ -45,7 +43,7 @@ export default class Detalhes extends React.Component {
         if (feed) {
             return (
                 <Card style={{ borderRadius: 10, padding: 10, }}>
-                    <Image source={produto} style={{ width: '100%', maxHeight: 300, borderRadius: 10 }} />
+                    <CardImage source={getImagem(feed.imagem)} />
                     <CardContent>
                             <NomeProduto style={{ padding: 10}}>{feed.product.name}</NomeProduto>
                         <DescricaoProduto>{feed.product.description}</DescricaoProduto>
